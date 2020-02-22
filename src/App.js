@@ -4,7 +4,6 @@ import './App.css';
 import ListSpeeches from './modules/speeches/pages/list';
 import allRoutes from './modules/routes';
 import AppHeader from './modules/main/header';
-import createDB from './indexed-db-context'
 class App extends Component {
   render() {
     return (
@@ -22,5 +21,4 @@ class App extends Component {
     );
   }
 }
-createDB();
 export default App;
