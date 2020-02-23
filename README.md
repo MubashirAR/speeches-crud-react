@@ -1,3 +1,6 @@
+## About this project
+This is a sample project which uses indexedDB to store data about speeches and the data is shared with the app through React Context. Every update in the DB triggers an update in the Context object
+
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
 Below you will find some information on how to perform common tasks.<br>
