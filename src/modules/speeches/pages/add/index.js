@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useContext } from 'react';
 import { FormControl, FormLabel, Input, InputLabel, TextField, Button, Grid } from '@material-ui/core';
 import DatePicker from 'react-date-picker';
-import getDB from '../../../../indexed-db-context';
+import getDB, { addItem } from '../../../../indexed-db-context';
 function AddSpeech(_, context) {
   const [state, setState] = useState({
     author: {
@@ -64,30 +64,24 @@ function AddSpeech(_, context) {
       [key]: value,
     });
   };
-  let submit = () => {
-    // let request = window.indexedDB.open('mubashir-speech-repo');
-    // request.onsuccess = e => {
-    //   let db = e.target.result;
-    //   console.log(db)
-    //   let txn = db.transaction('speeches', 'readwrite');
-    //   txn.onsuccess = _ => console.log('Transaction sabed successfully')
-
-    // }
-    let speeches = JSON.parse(localStorage.speeches || '[]');
-    let speech = { ...state };
-    delete speech['isFormValid'];
-    speeches.push(speech);
-    localStorage.setItem('speeches', JSON.stringify(speeches));
-    alert('saved successfully');
+  let submit = async () => {
+    try {
+      let speeches = JSON.parse(localStorage.speeches || '[]');
+      let speech = { ...state };
+      delete speech['isFormValid'];
+      speeches.push(speech);
+      await addItem(speech, 'speeches')
+      alert('saved successfully');
+      
+    } catch (error) {
+      alert('Something went wrong!')
+    }
   };
   let validation = () => {
     let allPresent = !!state.date && !!state.keywords.length && !!state.author.name;
-    let isNameValid = !!state.name && (state.name.length > 2) && (state.name.length < 20);
+    let isNameValid = !!state.name && state.name.length > 2 && state.name.length < 20;
     let isTextValid = !!state.text && state.text.length > 50;
-    console.log(allPresent,
-      isNameValid,
-      isTextValid)
-    return allPresent  && isNameValid && isTextValid;
+    return allPresent && isNameValid && isTextValid;
   };
   return (
     <Fragment>
@@ -109,13 +103,18 @@ function AddSpeech(_, context) {
           </Grid>
           <Grid item xs={12} sm={12}>
             <FormControl fullWidth>
-              <Input fullWidth multiline rows="10" onChange={onChange('text')} value={state.text} placeholder="Keywords (Comma Seperated)"></Input>
+              <Input
+                fullWidth
+                multiline
+                rows="10"
+                onChange={onChange('text')}
+                value={state.text}
+                placeholder="Keywords (Comma Seperated)"
+              ></Input>
             </FormControl>
           </Grid>
         </Grid>
-        <Button onClick={submit}>
-          Submit
-        </Button>
+        <Button onClick={submit}>Submit</Button>
       </form>
     </Fragment>
   );
