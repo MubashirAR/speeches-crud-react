@@ -1,16 +1,23 @@
 import React, { Fragment } from 'react';
+import { Link } from 'react-router-dom';
 function AppHeader() {
   return (
     <Fragment>
       <ul>
         <li>
-          <a href="/speech/add">Add speeches</a>
+          <Link to='/speech/add'>
+          Add speeches
+          </Link>
         </li>
         <li>
-          <a href="/speech/list">List speeches</a>
+          <Link to='/speech/list'>
+          List speeches
+          </Link>
         </li>
         <li>
-          <a href="/user/add">Sign Up</a>
+          <Link to='/user/add'>
+          Add User
+          </Link>
         </li>
       </ul>
     </Fragment>

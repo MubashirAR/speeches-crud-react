@@ -4,20 +4,51 @@ import './App.css';
 import ListSpeeches from './modules/speeches/pages/list';
 import allRoutes from './modules/routes';
 import AppHeader from './modules/main/header';
+import DBContext, { createDB, getItems, addItem } from './indexed-db-context';
 class App extends Component {
+  state = {
+    speeches: [],
+  };
+  addItemCustom = async (data, storeName) => {
+    try {
+      await addItem(data, storeName);
+      let resp = await getItems(storeName);
+      this.setState({
+        speeches: resp,
+      });
+      
+    } catch (error) {
+      console.log(error)
+    }
+  };
+  constructor(props) {
+    super(props);
+    createDB()
+      .then(async _ => {
+        this.setState({
+          speeches: await getItems('speeches'),
+        });
+      })
+      .catch(e => {
+        console.log('error creating db');
+        console.error(e);
+      });
+  }
   render() {
     return (
-      <React.Fragment>
-        <AppHeader></AppHeader>
-        <Router>
-          <Switch>
-            <Route path="/" exact>
-              <ListSpeeches></ListSpeeches>
-            </Route>
-            {allRoutes}
-          </Switch>
-        </Router>
-      </React.Fragment>
+      <DBContext.Provider value={{ speeches: this.state.speeches, getItems, addItem: this.addItemCustom }}>
+        <React.Fragment>
+          <Router>
+            <AppHeader></AppHeader>
+            <Switch>
+              <Route path="/" exact>
+                <ListSpeeches></ListSpeeches>
+              </Route>
+              {allRoutes}
+            </Switch>
+          </Router>
+        </React.Fragment>
+      </DBContext.Provider>
     );
   }
 }

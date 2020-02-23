@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useContext } from 'react';
 import { FormControl, FormLabel, Input, InputLabel, TextField, Button, Grid } from '@material-ui/core';
 import DatePicker from 'react-date-picker';
-import getDB, { addItem } from '../../../../indexed-db-context';
+import DBContext, { addItem } from '../../../../indexed-db-context';
 function AddSpeech(_, context) {
   const [state, setState] = useState({
     author: {
@@ -70,11 +70,10 @@ function AddSpeech(_, context) {
       let speech = { ...state };
       delete speech['isFormValid'];
       speeches.push(speech);
-      await addItem(speech, 'speeches')
+      await addItem(speech, 'speeches');
       alert('saved successfully');
-      
     } catch (error) {
-      alert('Something went wrong!')
+      alert('Something went wrong!');
     }
   };
   let validation = () => {
@@ -84,39 +83,44 @@ function AddSpeech(_, context) {
     return allPresent && isNameValid && isTextValid;
   };
   return (
-    <Fragment>
-      <div>Add speeches</div>
-      <form>
-        <Grid container spacing={10}>
-          <Grid item xs={12} sm={4}>
-            <FormControl fullWidth>
-              <Input fullWidth onChange={onChange('author.name')} value={state.author.name} placeholder="Who is the speaker?"></Input>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <FormControl fullWidth>
-              <Input fullWidth onChange={onChange('keywords')} value={state.keywords} placeholder="Keywords (Comma Seperated)"></Input>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <DatePicker fullWidth onChange={onChange('date')} value={state.date} maxDate={new Date()} />
-          </Grid>
-          <Grid item xs={12} sm={12}>
-            <FormControl fullWidth>
-              <Input
-                fullWidth
-                multiline
-                rows="10"
-                onChange={onChange('text')}
-                value={state.text}
-                placeholder="Keywords (Comma Seperated)"
-              ></Input>
-            </FormControl>
-          </Grid>
-        </Grid>
-        <Button onClick={submit}>Submit</Button>
-      </form>
-    </Fragment>
+    <DBContext.Consumer>
+      {context => (
+        <Fragment>
+          {console.log({ context })}
+          <div>Add speeches</div>
+          <form>
+            <Grid container spacing={10}>
+              <Grid item xs={12} sm={4}>
+                <FormControl fullWidth>
+                  <Input fullWidth onChange={onChange('author.name')} value={state.author.name} placeholder="Who is the speaker?"></Input>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <FormControl fullWidth>
+                  <Input fullWidth onChange={onChange('keywords')} value={state.keywords} placeholder="Keywords (Comma Seperated)"></Input>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <DatePicker fullWidth onChange={onChange('date')} value={state.date} maxDate={new Date()} />
+              </Grid>
+              <Grid item xs={12} sm={12}>
+                <FormControl fullWidth>
+                  <Input
+                    fullWidth
+                    multiline
+                    rows="10"
+                    onChange={onChange('text')}
+                    value={state.text}
+                    placeholder="Keywords (Comma Seperated)"
+                  ></Input>
+                </FormControl>
+              </Grid>
+            </Grid>
+            <Button onClick={_ => context.addItem(state, 'speeches')}>Submit</Button>
+          </form>
+        </Fragment>
+      )}
+    </DBContext.Consumer>
   );
 }
 

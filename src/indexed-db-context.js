@@ -2,8 +2,8 @@ import React from 'react';
 if (!('indexedDB' in window)) {
   alert('indexedDB not supported');
 }
-let createDB = () => {
-  new Promise((resolve, reject) => {
+export const createDB = () => {
+  return new Promise((resolve, reject) => {
     let idb = window.indexedDB;
     var request = idb.open('mubashir-speech-repo', 1);
     request.onupgradeneeded = function(event) {
@@ -21,6 +21,9 @@ let createDB = () => {
       console.log(ev);
       resolve(ev);
     };
+    request.onerror = function(ev) {
+      resolve(ev);
+    };
   });
 };
 export const addItem = (data, storeName) => {
@@ -35,7 +38,13 @@ export const addItem = (data, storeName) => {
       transaction.onerror = e => {
         reject(e);
       }
-      transaction.objectStore(storeName).add(data);
+      let addResp = transaction.objectStore(storeName).add(data);
+      addResp.onsuccess = e => {
+        resolve(e)
+      }
+      addResp.onerror = e => {
+        reject(e)
+      }
     };
     request.onerror = e => {
       reject(e);
@@ -48,12 +57,6 @@ export const getItems = (storeName) => {
     request.onsuccess = ev => {
       let db = ev.target.result;
       let transaction = db.transaction(storeName, 'readonly');
-      transaction.onsuccess = ev => {
-        resolve(ev);
-      };
-      transaction.onerror = e => {
-        reject(e);
-      }
       let getReq = transaction.objectStore(storeName).getAll();
       getReq.onsuccess = ev => {
         resolve(ev.target.result);
@@ -69,4 +72,4 @@ export const getItems = (storeName) => {
   })
 };
 
-export default createDB;
+export default React.createContext();
